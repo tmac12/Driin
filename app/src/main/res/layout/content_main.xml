@@ -16,4 +16,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!" />
+    <TimePicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/alarmTimePicker"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set alarm"
+        android:id="@+id/start_alarm"
+        android:layout_below="@+id/alarmTimePicker"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop alarm"
+        android:id="@+id/stop_alarm"
+        android:layout_below="@+id/alarmTimePicker"
+        android:layout_alignRight="@+id/alarmTimePicker"
+        android:layout_alignEnd="@+id/alarmTimePicker" />
 </RelativeLayout>

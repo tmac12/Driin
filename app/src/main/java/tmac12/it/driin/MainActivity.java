@@ -14,11 +14,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.TimePicker;
 
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
+    private TimePicker mAlarmTimePicker;
+    private AlarmManager mAlarmManager;
+    private PendingIntent mPendingIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +37,32 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+            }
+        });
+        mAlarmTimePicker = (TimePicker) findViewById(R.id.alarmTimePicker);
+        Button start_alarm= (Button) findViewById(R.id.start_alarm);
+        start_alarm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final int hour = mAlarmTimePicker.getHour();
+                final int minute = mAlarmTimePicker.getMinute();
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.HOUR_OF_DAY, hour);
+                cal.set(Calendar.MINUTE, minute);
+
+                scheduleNotificationSpecificTime(getNotification("custom notification"),cal);
+
+            }
+        });
+
+        Button stop_alarm= (Button) findViewById(R.id.stop_alarm);
+        stop_alarm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (mAlarmManager!= null) {
+                    mAlarmManager.cancel(mPendingIntent);
+                }
             }
         });
     }
@@ -75,11 +106,11 @@ public class MainActivity extends AppCompatActivity {
         Intent notificationIntent = new Intent(this, NotificationPublisher.class);
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mPendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         long futureInMillis = SystemClock.elapsedRealtime() + delay;
-        AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
+        mAlarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, mPendingIntent);
     }
 
     private Notification getNotification(String content) {
@@ -91,8 +122,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void scheduleNotificationSpecificTime(Notification notification, Calendar calendar){
+        mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Intent notificationIntent = new Intent(this, NotificationPublisher.class);
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
+        notificationIntent.putExtra("extra", "yes"); //this enable sound for ring
+
+        mPendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntent);
+    }
+
     private void scheduleNotificationSpecificTime(Notification notification){
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         /*
         Intent notificationIntent = new Intent("android.media.action.DISPLAY_NOTIFICATION");
@@ -104,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         Intent notificationIntent = new Intent(this, NotificationPublisher.class);
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION, notification);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mPendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
 
@@ -118,6 +162,6 @@ public class MainActivity extends AppCompatActivity {
         cal.set(Calendar.MONTH,4); //I mesi partono da 0!!!
         //cal.set(Calendar.YEAR,2016);
 
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), mPendingIntent);
     }
 }
