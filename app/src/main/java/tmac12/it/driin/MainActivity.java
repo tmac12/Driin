@@ -56,6 +56,14 @@ public class MainActivity extends AppCompatActivity {
             scheduleNotificationSpecificTime(getNotification("del"));
             return true;
         }
+        else  if (id==R.id.action_5s){
+            scheduleNotification(getNotification("5 second delay"), 5000);
+            return true;
+        }
+        else  if (id==R.id.action_5m){
+            scheduleNotification(getNotification("5 minutes delay"), 300000);
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
